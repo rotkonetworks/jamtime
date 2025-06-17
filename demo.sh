@@ -1,0 +1,1 @@
+bun -e "const j=(await import('./index.js')).default;const info=j.getTimeInfo(j.getCurrentTimeslot());console.log(\`JAM Time - Slot: \${info.timeslot}, Epoch: \${info.epoch}, Slot in Epoch: \${info.slotInEpoch}, UTC: \${info.date}\`)"

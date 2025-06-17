@@ -1,0 +1,53 @@
+{
+  "name": "jamtime",
+  "version": "1.0.3",
+  "description": "Efficient JAM Protocol timing library",
+  "type": "module",
+  "main": "index.cjs",
+  "module": "index.js",
+  "browser": "dist/jamtime.min.js",
+  "types": "index.d.ts",
+  "exports": {
+    ".": {
+      "browser": "./dist/jamtime.min.js",
+      "import": "./index.js",
+      "require": "./index.cjs"
+    }
+  },
+  "files": [
+    "index.js",
+    "index.cjs",
+    "index.d.ts",
+    "dist/"
+  ],
+  "scripts": {
+    "build": "bun run build.js",
+    "test": "bun test",
+    "bench": "bun run bench/performance.js",
+    "prepublishOnly": "bun run build"
+  },
+  "keywords": [
+    "jam",
+    "protocol",
+    "timing",
+    "blockchain",
+    "rotko"
+  ],
+  "license": "MIT",
+  "author": "Rotko Networks",
+  "homepage": "https://rotko.net",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rotkonetworks/jamtime.git"
+  },
+  "bugs": {
+    "url": "https://github.com/rotkonetworks/jamtime/issues"
+  },
+  "devDependencies": {
+    "esbuild": "^0.19.0"
+  },
+  "engines": {
+    "node": ">=16",
+    "bun": ">=1.0"
+  }
+}
