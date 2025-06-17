@@ -119,5 +119,4 @@ if (typeof window !== 'undefined') {
   window.JAMTime = JAMTime;
 }
 
-
 export default JAMTime;
