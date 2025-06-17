@@ -2,21 +2,28 @@ const JAM_COMMON_ERA = 1735732800;
 const SLOT_DURATION = 6;
 const EPOCH_LENGTH = 600;
 const MAX_TIMESLOT = 0xFFFFFFFF;
-const SLOT_DURATION_RECIPROCAL = 1 / SLOT_DURATION;
+const SLOT_DURATION_RECIPROCAL = 0.16666666666666666;
+
+let cachedTimeslot = -1;
+let cacheExpiry = 0;
 
 function getCurrentTimeslot() {
-  const now = Math.floor(Date.now() * 0.001);
-  const jamSeconds = now - JAM_COMMON_ERA;
-  return Math.max(0, Math.floor(jamSeconds * SLOT_DURATION_RECIPROCAL)) & MAX_TIMESLOT;
+  const now = Date.now();
+  if (now < cacheExpiry) return cachedTimeslot;
+  
+  const jamSeconds = now * 0.001 - JAM_COMMON_ERA;
+  cachedTimeslot = (jamSeconds * SLOT_DURATION_RECIPROCAL) >>> 0;
+  cacheExpiry = now + (SLOT_DURATION - (jamSeconds % SLOT_DURATION)) * 1000;
+  
+  return cachedTimeslot;
 }
 
 function unixToTimeslot(unixTimestamp) {
-  const jamSeconds = unixTimestamp - JAM_COMMON_ERA;
-  return Math.max(0, Math.floor(jamSeconds * SLOT_DURATION_RECIPROCAL)) & MAX_TIMESLOT;
+  return ((unixTimestamp - JAM_COMMON_ERA) * SLOT_DURATION_RECIPROCAL) >>> 0;
 }
 
 function timeslotToUnix(timeslot) {
-  return JAM_COMMON_ERA + (timeslot * SLOT_DURATION);
+  return JAM_COMMON_ERA + timeslot * SLOT_DURATION;
 }
 
 function getEpoch(timeslot) {
@@ -49,18 +56,19 @@ function getTimeInfo(timeslot) {
 }
 
 function convertBulkUnixToTimeslots(unixArray) {
-  const result = new Array(unixArray.length);
-  for (let i = 0; i < unixArray.length; i++) {
-    const jamSeconds = unixArray[i] - JAM_COMMON_ERA;
-    result[i] = Math.max(0, Math.floor(jamSeconds * SLOT_DURATION_RECIPROCAL)) & MAX_TIMESLOT;
+  const len = unixArray.length;
+  const result = new Array(len);
+  for (let i = 0; i < len; ++i) {
+    result[i] = (unixArray[i] - JAM_COMMON_ERA) * SLOT_DURATION_RECIPROCAL >>> 0;
   }
   return result;
 }
 
 function convertBulkTimeslotsToUnix(timeslotArray) {
-  const result = new Array(timeslotArray.length);
-  for (let i = 0; i < timeslotArray.length; i++) {
-    result[i] = JAM_COMMON_ERA + (timeslotArray[i] * SLOT_DURATION);
+  const len = timeslotArray.length;
+  const result = new Array(len);
+  for (let i = 0; i < len; ++i) {
+    result[i] = JAM_COMMON_ERA + timeslotArray[i] * SLOT_DURATION;
   }
   return result;
 }
@@ -78,11 +86,8 @@ function* epochRange(startEpoch, endEpoch) {
 }
 
 function getTimeToNextSlot() {
-  const now = Date.now() * 0.001;
-  const jamSeconds = now - JAM_COMMON_ERA;
-  const currentSlotStart = Math.floor(jamSeconds * SLOT_DURATION_RECIPROCAL) * SLOT_DURATION;
-  const nextSlotStart = currentSlotStart + SLOT_DURATION;
-  return Math.max(0, nextSlotStart - jamSeconds);
+  const jamSeconds = Date.now() * 0.001 - JAM_COMMON_ERA;
+  return SLOT_DURATION - jamSeconds % SLOT_DURATION;
 }
 
 function isValidTimeslot(timeslot) {
